@@ -1,0 +1,32 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Transactions
+{% endblock %}
+
+{% block main %}
+<h3 id="index-header">Your Completed Transactions</h3>
+<table class="table table-striped">
+  <thead class="thead-dark">
+    <tr>
+      <th scope="col">Type</th>
+      <th scope="col">Symbol</th>
+      <th scope="col">Shares</th>
+      <th scope="col">Price</th>
+      <th scope="col">Date and Time</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for transaction in transactions %}
+      <tr>
+        <th scope="row">{{ transaction["type"] }}</th>
+        <td>{{ transaction['symbol'] }}</td>
+        <td>{{ transaction["quantity"] }}</td>
+        <td>${{ transaction['price'] }}</td>
+        <td>{{ transaction['datetime'] }}</td>
+      </tr>
+    {% endfor %}
+  </tbody>
+
+</table>
+{% endblock %}

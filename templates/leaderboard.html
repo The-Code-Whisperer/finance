@@ -1,0 +1,28 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Leaderboard
+{% endblock %}
+
+{% block main %}
+<h3 id="index-header">Leaderboard</h3>
+<table class="table table-striped">
+  <thead class="thead-dark">
+    <tr>
+      <th scope="col">#</th>
+      <th scope="col">Name</th>
+      <th scope="col">Net Worth</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for place in leaderboard %}
+    <tr>
+      <th scope="row">{{ loop.index }}</th>
+      <td>{{ place['user'] }}</td>
+      <td>{{ place['net']|usd }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+
+</table>
+{% endblock %}

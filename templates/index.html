@@ -1,0 +1,51 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Index
+{% endblock %}
+
+{% block main %}
+<h3 id="index-header">Your Portfolio</h3>
+<table class="table table-striped">
+  <thead class="thead-dark">
+    <tr>
+      <th scope="col">#</th>
+      <th scope="col">Name</th>
+      <th scope="col">Symbol</th>
+      <th scope="col">Shares</th>
+      <th scope="col">Purchase Price</th>
+      <th scope="col">Price</th>
+      <th scope="col">Value</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for symbol, data in portfolio.items() %}
+    <tr>
+      <th scope="row">{{ loop.index }}</th>
+      <td>{{ data['name'] }}</td>
+      <td>{{ symbol }}</td>
+      <td>{{ data['shares_owned'] }}</td>
+      <td>{{ data['avg_pur_price']|usd }}</td>
+      <td>{{ data['price']|usd }}</td>
+      <td>{{ data['value_owned']|usd }}</td>
+    </tr>
+    {% endfor %}
+</table>
+
+<table class="table">
+  <thead class="thead">
+    <tr>
+        <th scope="col">Cash</th>
+        <th scope="col">Net Worth</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+        <td>{{ cash|usd }}</td>
+        <td>{{ net|usd }}</td>
+    </tr>
+  </tbody>
+
+</table>
+
+{% endblock %}
