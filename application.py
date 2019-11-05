@@ -34,6 +34,7 @@ app.config["SESSION_TYPE"] = "filesystem"
 Session(app)
 
 # Configure CS50 Library to use SQLite database
+#db = SQL("postgres://bytwmjzxiuoxen:108507a5628af54e31f2b9b4a9ef66f5084aaf724f2e6cd71228b766d16f904d@ec2-54-83-33-14.compute-1.amazonaws.com:5432/ddbusambrbkj35")
 db = SQL("sqlite:///finance.db")
 
 # Make sure API key is set
@@ -55,38 +56,34 @@ def index():
         symbol = transaction["symbol"]
         if symbol not in portfolio.keys():
             portfolio[symbol] = {}
-            portfolio[symbol]["price"] = transaction["price"]
+            portfolio[symbol]["price"] = lookup(symbol)["price"]
             if transaction["type"] == "BUY":
                 portfolio[symbol]["name"] = lookup(symbol)["name"]
                 portfolio[symbol]["shares_bought"] = transaction["quantity"]
                 portfolio[symbol]["value_bought"] = transaction["total"]
                 portfolio[symbol]["shares_owned"] = transaction["quantity"]
-                portfolio[symbol]["value_owned"] = transaction["total"]
-                net += transaction["total"]
+                portfolio[symbol]["value_owned"] = transaction["quantity"] * portfolio[symbol]["price"]
                 portfolio[symbol]["avg_pur_price"] = transaction["price"]
             elif transaction["type"] == "SELL":
                 portfolio[symbol]["shares_owned"] = -transaction["quantity"]
-                portfolio[symbol]["value_owned"] = -transaction["total"]
-                net -= transaction["total"]
+                portfolio[symbol]["value_owned"] = -transaction["quantity"] * portfolio[symbol]["price"]
             else:
                 return render_template("Database error. Contact Steven.")
         else:
             if transaction["type"] == "BUY":
-                portfolio[symbol]["avg_pur_price"] = \
-                    (portfolio[symbol]["avg_pur_price"] * portfolio[symbol]["shares_bought"] + \
-                     transaction["quantity"] * transaction["price"]) \
-                     / (portfolio[symbol]["shares_bought"] + transaction["quantity"])
+                portfolio[symbol]["avg_pur_price"] = (portfolio[symbol]["avg_pur_price"] * portfolio[symbol]["shares_bought"]
+                                                      + transaction["quantity"] * transaction["price"]) / (portfolio[symbol]["shares_bought"] + transaction["quantity"])
                 portfolio[symbol]["shares_bought"] += transaction["quantity"]
                 portfolio[symbol]["value_bought"] += transaction["total"]
                 portfolio[symbol]["shares_owned"] += transaction["quantity"]
-                portfolio[symbol]["value_owned"] += transaction["total"]
-                net += transaction["total"]
+                portfolio[symbol]["value_owned"] += transaction["quantity"] * portfolio[symbol]["price"]
             elif transaction["type"] == "SELL":
                 portfolio[symbol]["shares_owned"] -= transaction["quantity"]
-                portfolio[symbol]["value_owned"] -= transaction["total"]
-                net -= transaction["total"]
+                portfolio[symbol]["value_owned"] -= transaction["quantity"] * portfolio[symbol]["price"]
             else:
                 return render_template("Database error. Contact Steven.")
+    for data_dict in portfolio.values():
+        net += data_dict["shares_owned"] * data_dict["price"]
     return render_template("index.html", portfolio=portfolio, cash=cash, net=net)
 
 
@@ -104,7 +101,10 @@ def buy():
             price = lookup(symbol)["price"]
         else:
             return apology("That stock symbol does not exist. Look them up online.")
-        quantity = float(request.form.get("shares"))
+        try:
+            quantity = float(request.form.get("shares"))
+        except ValueError:
+            return apology("That's a weird number of shares.")
         if not quantity > 0 or round(quantity % 1, 3) != 0:
             return apology("That's a weird number of shares.")
         total = price * quantity
@@ -145,8 +145,9 @@ def leaderboard():
     leaderboard = []
     for user, net in user_nets.items():
         leaderboard.append({"user": user, "net": net})
-    sorted(leaderboard, key = lambda i: i['net'], reverse=True)
+    leaderboard = sorted(leaderboard, key=lambda i: i['net'], reverse=True)
     return render_template("leaderboard.html", leaderboard=leaderboard)
+
 
 @app.route("/check", methods=["GET"])
 def check():
@@ -277,9 +278,9 @@ def register():
 @login_required
 def sell():  # receive symbol, shares
     """Sell shares of stock"""
+    id = session["user_id"]
+    username = db.execute("SELECT username FROM users WHERE id=:id", id=id)[0]["username"]
     if request.method == "POST":
-        id = session["user_id"]
-        username = db.execute("SELECT username FROM users WHERE id=:id", id=id)[0]["username"]
         symbol = request.form.get("symbol").upper()
         if lookup(symbol):
             price = lookup(symbol)["price"]
@@ -310,7 +311,14 @@ def sell():  # receive symbol, shares
         else:
             return apology("You don't have enough shares to sell that many!")
     else:
-        return render_template("sell.html")
+        # return sell.html with list of sellable symbols
+        stocks = db.execute("SELECT symbol FROM transactions WHERE username=? AND quantity!=?",
+                            username, 0)
+        symbols = []
+        for transaction in stocks:
+            symbols.append(transaction["symbol"])
+        symbols = list(dict.fromkeys(symbols))
+        return render_template("sell.html", symbols=symbols)
 
 
 def errorhandler(e):
