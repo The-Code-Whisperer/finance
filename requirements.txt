@@ -5,7 +5,6 @@ requests
 gunicorn
 django
 django-heroku
-os
 tempfile
 werkzeug
 urllib.parse
