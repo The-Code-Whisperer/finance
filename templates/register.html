@@ -6,7 +6,7 @@
 
 {% block main %}
     <script src="/static/script.js"></script>
-    <form id="form" action="/register" method="post">
+    <form id="form" method="post" onsubmit="checkUsername(); return false;">
       <div class="form-group">
         <label for="username">Enter a username:</label>
         <input type="text" class="form-control" id="username" name="username" placeholder="Username">
@@ -21,28 +21,33 @@
       </div>
       <button id="submit" type="submit" class="btn btn-primary">Submit</button>
     </form>
-<!--
+
 <script>
+
+  function checkUsername()
+  {
+    let username = document.querySelector('#username').value; // # makes it id, not html tag
+
+    alert('Hello, ' + username);
+  }
+
+
+/*
+
 document.getElementById("submit").addEventListener("click", function(event){
   event.preventDefault()
 });
 
-$.get("/check", function( data ) {
-  $( ".result" ).html( data );
-  alert( "Load was performed." );
+$.get("/check", function(username) {
+  $( ".result" ).html( data ):
+  if true:
+    document.getElementById("form").submit();
+  else:
+    alert("Invalid username.");
+
 });
 
-document.getElementById("form").submit();
+*/
 </script>
 
- preventDefault
-    <script>
-      onsubmit activate function
-        if $.get("/check"):
-          submit form
-        else:
-          alert("Username taken.")
-
-
-    </script>-->
 {% endblock %}
