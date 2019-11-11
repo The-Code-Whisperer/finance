@@ -5,9 +5,7 @@ requests
 gunicorn
 django
 django-heroku
-tempfile
 werkzeug
-urllib.parse
 psycopg2
 psycopg2-binary
 dj-database-url
