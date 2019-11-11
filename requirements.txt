@@ -8,7 +8,6 @@ django-heroku
 os
 tempfile
 werkzeug
-functools
 urllib.parse
 psycopg2
 psycopg2-binary
