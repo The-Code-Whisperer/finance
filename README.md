@@ -1,4 +1,4 @@
-Never officially deployed. Ask The-Code-Whisperer to deploy it and give you the link.
+Works but is not deployed. Ask The-Code-Whisperer to deploy it and give you the link.
 
 Or clone the repo, install the cs50 library and flask, possibly others. Export the API_KEY as a free API_KEY you can get from https://iexcloud.io/
 
