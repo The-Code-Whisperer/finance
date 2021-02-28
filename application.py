@@ -39,7 +39,7 @@ db = SQL("sqlite:///finance.db")
 
 # Make sure API key is set
 if not os.environ.get("API_KEY"):
-    raise RuntimeError("API_KEY not set")
+    raise RuntimeError("API_KEY not set, use export API_KEY=yourfreeapikeyfromiexcloud")
 
 
 @app.route("/")
